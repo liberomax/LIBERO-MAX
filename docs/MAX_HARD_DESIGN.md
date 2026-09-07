@@ -1,5 +1,12 @@
 # LIBERO-MAX-5600: dynamic evaluation on LIBERO-Plus
 
+> **Component construction record.** This document records the 5,600-pair
+> Plus-derived component and the study plan used during its development.
+> Current reporting combines it with the 2,400-pair PRO-derived component in
+> LIBERO-MAX and also provides an 800-pair Lite subset. See the
+> [current results](../README.md#results) and
+> [benchmark specification](BENCHMARK_SPEC.md).
+
 Status: released as benchmark version 2.0.0
 
 ## Purpose

@@ -1,5 +1,11 @@
 # LIBERO-MAX v1 Benchmark Design
 
+> **Historical v1 design.** This document records the six-type Core/Full
+> release and its status at the time. The current benchmark uses eight event
+> types across 8,000 matched pairs, with an 800-pair Lite subset. See the
+> [current results](../README.md#results) and
+> [benchmark specification](BENCHMARK_SPEC.md).
+
 Status: v1.0.0 physical test sets frozen after deterministic relocation
 calibration, two-pass real-MuJoCo preflight, feasibility filtering, and release
 audit. Cosmos rollout and paper-result validation are still pending.

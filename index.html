@@ -46,7 +46,7 @@ img{display:block;max-width:100%} a{color:inherit;text-decoration:none} a:focus-
 .site-header{position:sticky;top:0;z-index:100;background:var(--header);border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
 .nav{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .brand,.nav-links,.eyebrow,.section-index,.section-kicker,.panel-label,.metric-label,.event-copy span,.lineage-node>span,.node-links,.figure-note span,.button,.footer-links,.footer-note{font-family:var(--mono)}
-.brand{font-family:var(--mono);font-size:19px;font-weight:700;letter-spacing:-.04em}.brand::before{content:"";display:inline-block;width:10px;height:10px;margin-right:10px;background:var(--green)}
+.brand{display:inline-flex;align-items:center;padding:7px 9px;background:#fff;border-radius:3px}.brand img{width:190px;height:auto}.footer-wordmark{display:inline-block;padding:7px 9px;background:#fff;border-radius:3px}.footer-wordmark img{width:180px;height:auto}
 .nav-links{display:flex;align-items:center;gap:3px;font-size:12px}.nav-links a{padding:8px 9px;border:1px solid transparent}.nav-links a:hover{background:var(--soft);border-color:var(--line-strong)}
 .nav-links .nav-code{color:var(--inverse-fg);background:var(--inverse);border-color:var(--inverse)}.theme-toggle{width:38px;height:38px;padding:0;color:var(--fg);background:transparent;border:1px solid transparent;cursor:pointer}.theme-toggle:hover{background:var(--soft);border-color:var(--line-strong)}.theme-glyph{font-size:22px}
 .hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.5fr);gap:clamp(52px,8vw,110px);align-items:end;padding:94px 0 72px}
@@ -83,7 +83,7 @@ footer{padding:45px 0;border-top:1px solid var(--line)}.footer-grid{display:grid
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="shell nav">
-      <a class="brand" href="#top" aria-label="LIBERO-MAX home">LIBERO-MAX</a>
+      <a class="brand" href="#top" aria-label="LIBERO-MAX home"><img src="assets/brand/liberomax_wordmark.svg" width="190" height="25" alt="LIBERO-MAX"></a>
       <nav class="nav-links" aria-label="Main navigation">
         <a href="#benchmark">benchmark</a><a href="#results">results</a><a href="#lineage">lineage</a><a href="#reproduce">reproduce</a><a href="#citation">cite</a>
         <a class="nav-code" href="https://github.com/yunbeizhang/LIBERO-MAX" target="_blank" rel="noreferrer">code ↗</a>
@@ -152,16 +152,34 @@ footer{padding:45px 0;border-top:1px solid var(--line)}.footer-grid{display:grid
     <section class="section results-section" id="results"><div class="shell">
       <div class="section-head"><span class="section-index">02</span><div><p class="section-kicker">main results</p><h2>Every policy loses success.</h2></div><p class="section-note">Fourteen complete evaluations use the same 8,000 matched Base and Dynamic pairs.</p></div>
       <div class="finding-band"><span class="finding-range">11.0–25.7</span><p><strong>percentage-point success loss</strong><br>after one controlled online event. Among Base successes, 20.8% to 56.1% become failures in Dynamic.</p></div>
+      <div class="table-wrap" role="region" aria-label="Fourteen-policy primary results" tabindex="0"><table>
+<caption class="visually-hidden">Primary success rates over 8,000 matched Base and Dynamic pairs per policy</caption>
+<thead><tr><th scope="col">Family</th><th scope="col">Policy</th><th scope="col">Base (%)</th><th scope="col">Dynamic (%)</th><th scope="col">Δ (pp)</th></tr></thead><tbody>
+<tr><td>VLA</td><td>π0.5</td><td>79.7</td><td>65.7</td><td>-13.9</td></tr>
+<tr><td>VLA</td><td>OpenVLA-OFT</td><td>64.3</td><td>43.2</td><td>-21.1</td></tr>
+<tr><td>VLA</td><td>X-VLA</td><td>62.6</td><td>37.7</td><td>-24.9</td></tr>
+<tr><td>VLA</td><td>Xiaomi-Robotics-0</td><td>70.3</td><td>52.0</td><td>-18.3</td></tr>
+<tr><td>VLA</td><td>MolmoAct2</td><td>80.3</td><td>66.9</td><td>-13.4</td></tr>
+<tr><td>VLA</td><td>SmolVLA</td><td>26.1</td><td>15.0</td><td>-11.0</td></tr>
+<tr><td>VLA</td><td>GR00T N1.7</td><td>69.3</td><td>50.0</td><td>-19.3</td></tr>
+<tr><td>VLA</td><td>DM0.5</td><td>79.8</td><td>62.1</td><td>-17.7</td></tr>
+<tr><td>VLA+WAM</td><td>VLA-JEPA</td><td>73.5</td><td>54.3</td><td>-19.2</td></tr>
+<tr><td>WAM</td><td>Cosmos-Policy</td><td>77.4</td><td>59.3</td><td>-18.2</td></tr>
+<tr><td>WAM</td><td>Fast-WAM</td><td>42.0</td><td>24.0</td><td>-18.0</td></tr>
+<tr><td>WAM</td><td>HiMem-WAM</td><td>73.0</td><td>57.7</td><td>-15.3</td></tr>
+<tr><td>WAM</td><td>Light-WAM</td><td>54.8</td><td>37.3</td><td>-17.5</td></tr>
+<tr><td>WAM</td><td>DiT4DiT</td><td>65.1</td><td>39.4</td><td>-25.7</td></tr>
+</tbody></table></div><p class="figure-note">Each row uses the same 8,000 matched pairs. Δ is Dynamic minus Base, computed before rounding. <a href="results/primary_results.csv" download>Download counts and rates (CSV) ↗</a></p>
       <p class="result-summary">The fixed 800-pair LIBERO-MAX Lite subset estimates every reported rate within 2.4 points of Max and preserves 88 of 91 pairwise Dynamic orderings.</p>
       <div class="figure-frame result-figure"><img src="assets/figures/max_lite_validation.png" alt="Comparison of LIBERO-MAX and LIBERO-MAX Lite across evaluated policies" loading="lazy"></div>
-      <div class="analysis-block"><div><p class="section-kicker">where policies break</p><h3>Failure is structured by event type.</h3><p>Relocation, viewpoint change, and sensor corruption reveal shared weaknesses. Appearance robustness still does not predict recovery from geometry changes.</p></div><div class="figure-frame heatmap-frame"><img src="assets/figures/change_type_breakdown.png" alt="Success-rate loss by policy and online event type" loading="lazy"></div></div>
+      <div class="analysis-block"><div><p class="section-kicker">where policies break</p><h3>Failure is structured by event type.</h3><p>Relocation, viewpoint change, and sensor corruption reveal shared weaknesses. Policies that tolerate appearance changes can still fail after target or receptacle relocation.</p></div><div class="figure-frame heatmap-frame"><img src="assets/figures/change_type_breakdown.png" alt="Success-rate loss by policy and online event type" loading="lazy"></div></div>
     </div></section>
 
     <section class="section construction-section shell" id="lineage">
       <div class="section-head"><span class="section-index">03</span><div><p class="section-kicker">benchmark construction</p><h2>From static source cases to changes during execution.</h2></div><p class="section-note">LIBERO-MAX keeps the task substrate fixed, preserves the executed action prefix, and introduces one feasible change only after the robot begins acting.</p></div>
       <div class="figure-frame construction-figure"><img src="assets/figures/benchmark_construction.png" alt="Construction of LIBERO-MAX from LIBERO tasks and selected Plus-derived and PRO-derived source cases"></div>
       <div class="construction-summary">
-        <p><strong>8,000 source cases become 8,000 matched dynamic evaluations.</strong> The frozen track combines 5,600 Plus-derived and 2,400 PRO-derived cases, then moves the selected change from reset time into policy execution.</p>
+        <p><strong>8,000 source cases become 8,000 matched dynamic evaluations.</strong> The frozen track combines 5,600 Plus-derived and 2,400 PRO-derived cases, then applies one feasible event during policy execution.</p>
         <div class="hero-actions"><a class="button button-primary" href="https://github.com/yunbeizhang/LIBERO-MAX/tree/main/benchmark/max8000" target="_blank" rel="noreferrer">Explore LIBERO-MAX ↗</a><a class="button" href="https://github.com/yunbeizhang/LIBERO-MAX#libero-max-and-libero-max-lite" target="_blank" rel="noreferrer">Read protocol ↗</a></div>
       </div>
     </section>
@@ -195,7 +213,7 @@ footer{padding:45px 0;border-top:1px solid var(--line)}.footer-grid{display:grid
     </section>
   </main>
 
-  <footer><div class="shell footer-grid"><div><strong>LIBERO-MAX</strong><p>Dynamic robustness for robot policies.</p></div><div class="footer-links"><a href="#citation">BibTeX</a><a href="https://github.com/yunbeizhang/LIBERO-MAX" target="_blank" rel="noreferrer">GitHub ↗</a><a href="#top">Back to top ↑</a></div><p class="footer-note">Dataset · Paper coming soon</p></div></footer>
+  <footer><div class="shell footer-grid"><div><a class="footer-wordmark" href="#top" aria-label="LIBERO-MAX home"><img src="assets/brand/liberomax_wordmark.svg" width="180" height="24" alt="LIBERO-MAX"></a><p>Dynamic robustness for robot policies.</p></div><div class="footer-links"><a href="#citation">BibTeX</a><a href="https://github.com/yunbeizhang/LIBERO-MAX" target="_blank" rel="noreferrer">GitHub ↗</a><a href="#top">Back to top ↑</a></div><p class="footer-note">Dataset · Paper coming soon</p></div></footer>
   <script>
 (() => {
   const root = document.documentElement;

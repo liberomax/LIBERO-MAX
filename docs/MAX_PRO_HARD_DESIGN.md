@@ -1,5 +1,11 @@
 # MAX-PRO-Hard-2400 design
 
+> **Component construction record.** This document records the 2,400-pair
+> PRO-derived component and its original reporting plan. The current primary
+> comparison uses the full 8,000-pair LIBERO-MAX union, with an 800-pair Lite
+> subset for fast evaluation. See the [current results](../README.md#results)
+> and [benchmark specification](BENCHMARK_SPEC.md) for current reporting.
+
 Status: version 3.0.0 frozen; physical preflight and runtime publication gates complete
 
 Screening round 1 executed all 2,400 configurations: 2,156 passed and 244

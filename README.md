@@ -1,6 +1,6 @@
 <div align="center">
 
-# LIBERO-MAX
+<h1><img src="assets/brand/liberomax_wordmark_white.svg" width="520" alt="LIBERO-MAX"></h1>
 
 ### Do robot policies adapt when the world changes during execution?
 
@@ -19,6 +19,8 @@
 
 LIBERO-MAX measures whether a robot policy preserves task success after an **exogenous change introduced during execution**. Every Dynamic rollout is paired with a no-event Base control that shares the task, reset state, instruction, policy seed, and executed action prefix. The pair differs only when one frozen event is applied to Dynamic, isolating the outcome effect of adding that online change. The benchmark does not infer whether a policy internally detected the event or deliberately replanned.
 
+> **News — 2026-09-07.** The README and project website now include the complete fourteen-policy result table, downloadable counts and rates, and updated figures with the new LIBERO-MAX wordmark.
+>
 > **News — 2026-09-03.** We expanded the primary comparison to fourteen complete VLA, VLA+WAM, and WAM evaluations and released the fixed 800-pair LIBERO-MAX Lite track.
 >
 > **News — 2026-08-15.** We released the LIBERO-MAX dataset and the initial complete results across five VLA and WAM policies.
@@ -67,6 +69,25 @@ See [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the complete attribution and 
 ### Full benchmark and fast split
 
 Across fourteen complete 8,000-pair evaluations, every policy loses 11.0 to 25.7 success-rate points after the online event. Among episodes solved in Base, 20.8% to 56.1% become failures in Dynamic. The evaluated VLA, VLA+WAM, and WAM policies interleave rather than forming a consistent family ordering.
+
+| Family | Policy | Base SR (%) | Dynamic SR (%) | Δ (pp) |
+|---|---|---:|---:|---:|
+| VLA | π0.5 | 79.7 | 65.7 | -13.9 |
+| VLA | OpenVLA-OFT | 64.3 | 43.2 | -21.1 |
+| VLA | X-VLA | 62.6 | 37.7 | -24.9 |
+| VLA | Xiaomi-Robotics-0 | 70.3 | 52.0 | -18.3 |
+| VLA | MolmoAct2 | 80.3 | 66.9 | -13.4 |
+| VLA | SmolVLA | 26.1 | 15.0 | -11.0 |
+| VLA | GR00T N1.7 | 69.3 | 50.0 | -19.3 |
+| VLA | DM0.5 | 79.8 | 62.1 | -17.7 |
+| VLA+WAM | VLA-JEPA | 73.5 | 54.3 | -19.2 |
+| WAM | Cosmos-Policy | 77.4 | 59.3 | -18.2 |
+| WAM | Fast-WAM | 42.0 | 24.0 | -18.0 |
+| WAM | HiMem-WAM | 73.0 | 57.7 | -15.3 |
+| WAM | Light-WAM | 54.8 | 37.3 | -17.5 |
+| WAM | DiT4DiT | 65.1 | 39.4 | -25.7 |
+
+Each row contains the same 8,000 matched pairs. Δ is Dynamic minus Base, computed from the exact counts before rounding. [Download the counts and rates (CSV)](results/primary_results.csv).
 
 LIBERO-MAX Lite closely tracks the full benchmark, making it useful for rapid adapter validation while leaving LIBERO-MAX as the primary reporting track.
 
@@ -149,9 +170,9 @@ For custom adapters, follow the common shard interface in the [runtime integrati
 LIBERO-MAX/
 ├── benchmark/
 │   ├── max8000/              # Full 8,000-pair release and checksums
-│   ├── lite/                 # Fixed 800-pair subset and validation metadata
-│   ├── schemas/              # Versioned case schema
-│   └── tasks/                # Frozen task catalogs
+│   └── lite/                 # Fixed 800-pair subset and validation metadata
+├── schemas/                 # Manifest, scenario, and result schemas
+├── results/                 # Audited primary counts and success rates
 ├── src/libero_max/           # Validation, pairing, events, and evaluation utilities
 ├── scripts/                  # Release builders, schedulers, and model adapters
 ├── examples/                 # Minimal policy integration

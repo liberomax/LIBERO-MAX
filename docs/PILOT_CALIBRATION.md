@@ -1,5 +1,10 @@
 # Cosmos Physical Pilot Calibration
 
+> **Historical pilot calibration.** The measurements below describe the
+> original five-case mechanics check. See the [current results](../README.md#results)
+> and [benchmark specification](BENCHMARK_SPEC.md) for the released 8,000-pair
+> benchmark and 800-pair Lite subset.
+
 This note records calibration evidence for
 `cosmos_physical_pilot_v0.1.json`. It is a pilot record, not a benchmark-wide
 result.

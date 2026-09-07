@@ -1,5 +1,10 @@
 # LIBERO-MAX v1 Test-Set Release Contract
 
+> **Historical v1 release contract.** The build instructions and counts below
+> apply to the earlier Core/Full test sets. For the current 8,000-pair release
+> and 800-pair Lite subset, see the [benchmark specification](BENCHMARK_SPEC.md)
+> and [current results](../README.md#results).
+
 The versioned test sets are generated artifacts, not hand-edited JSON files.
 Run the complete pipeline only on the pinned LIBERO / robosuite environment:
 

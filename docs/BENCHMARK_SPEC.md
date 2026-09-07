@@ -1,203 +1,140 @@
 # LIBERO-MAX Benchmark Specification
 
-Status: initial design draft
+Status: current released benchmark, version 3.0.0. This specification describes
+LIBERO-MAX (Max) and LIBERO-MAX Lite (Lite), as used in the fourteen-policy
+paper evaluation.
 
-The executable release is organized into three tracks. Track A scores physical
-changes with paired LIBERO goal completion. Track B scores intent revisions
-with alternate goal / cancellation / clarification evaluators. Track C scores
-safe infeasibility awareness. Only Track A is currently executable end to end;
-the ordinary LIBERO success predicate is not valid for Track B or C.
+## Evaluation tracks
 
-## 1. Evaluation unit
+| Track | Matched pairs per policy | Scored rollouts per policy | Source composition | Use |
+| --- | ---: | ---: | --- | --- |
+| Max | 8,000 | 16,000 | 5,600 Plus-derived + 2,400 PRO-derived | Primary benchmark reporting |
+| Lite | 800 | 1,600 | 560 Plus-derived + 240 PRO-derived | Integration, ablation, early comparison |
 
-The basic evaluation unit is a matched episode pair:
+The [Max manifest](../benchmark/max8000/libero_max_8000.json) fixes all case
+IDs and event parameters. [Lite](../benchmark/lite/README.md) is a deterministic
+subset of Max, selected from manifest metadata with seed `20260830` without
+inspecting policy outcomes. Each event contributes 100 Lite pairs: 70
+Plus-derived and 30 PRO-derived. Case membership is shared across checkpoints
+and query cadences. Use the same checkpoint and released native serving
+configuration when comparing a policy on Max and Lite.
 
-1. a **control episode** with no mid-execution change; and
-2. an **intervention episode** with the same task, seed, and initial state, plus
-   one externally introduced change.
+The source tasks cover LIBERO-Spatial, LIBERO-Object, LIBERO-Goal, and LIBERO-10.
+A case ID identifies a task instance and a frozen event configuration; 8,000
+pairs do not mean 8,000 unique tasks.
 
-Each intervention episode has three phases:
+## Matched Base and Dynamic episodes
 
-- **pre-change**: normal execution before the intervention;
-- **change event**: the timestamped external modification;
-- **post-change**: the model's detection, adaptation, and resulting behavior.
+Each case has two arms, called `control` and `intervention` in the manifest:
 
-## 2. Change taxonomy
+- **Base:** execute the task without an exogenous event.
+- **Dynamic:** share the task, instruction, initial simulator state, policy
+  seed, and executed pre-event action prefix, then apply exactly one frozen
+  event during execution.
 
-| Code | Change family | Examples | Typical expected response |
-| --- | --- | --- | --- |
-| `OBS` | Observation conditions | Lights off, camera moved | Recover perception and continue |
-| `GEO` | Scene geometry | Target or receptacle moved | Re-localize and replan |
-| `CLUTTER` | Distractor burst | Multiple confusing objects suddenly appear | Maintain target identity and continue safely |
-| `OBSTACLE` | New obstruction | Obstacle inserted into path | Avoid and replan safely |
-| `OBS-NEW` | Legacy new-observation label | Backward-compatible pilot scenarios | Migrate to a specific v1 type |
-| `INTENT` | User intent | Instruction modified or cancelled | Follow the update or stop |
-| `FEAS` | Task feasibility | Target or receptacle removed | Stop or report infeasibility |
+Both arms use the original LIBERO goal-completion predicate. The comparison
+measures the outcome effect of adding one online event after the shared
+prefix. It does not compare the same perturbation at reset and during execution,
+or establish internal detection and replanning.
 
-The taxonomy describes what changed, not which adaptation method a model uses.
+The paired protocol requires exact pre-event replay, not merely matching reset
+seeds. Adapters must record and verify the initial-state and action-prefix
+agreement before their results are aggregated.
 
-The v1 physical-completion track contains six explicit change types:
+## Eight events and four reporting families
 
-1. `illumination_switch`;
-2. `camera_shift`;
-3. `target_relocation`;
-4. `receptacle_relocation`;
-5. `distractor_burst`;
-6. `obstacle_insertion`.
+Each Max event contains 1,000 pairs; each Lite event contains 100 pairs.
 
-The earlier five-case pilot covers only illumination, target relocation, and
-distractor insertion. It validates mechanics but does not define the final
-benchmark breadth.
-
-Intent and feasibility use separate response-aware types:
-`instruction_target_update`, `instruction_receptacle_update`, `task_cancel`,
-`target_removal`, and `receptacle_removal`.
-
-## 3. Intervention timing
-
-Every scenario must define an observable trigger rather than relying only on
-wall-clock time. Recommended trigger types are:
-
-- `after_grasp`;
-- `before_grasp`;
-- `after_subgoal`;
-- `on_region_entry`;
-- `on_proximity` with an entity name and metric distance threshold;
-- `progress_fraction`;
-- `fixed_step` for controlled diagnostics only.
-
-Results should be stratified by early, middle, and late intervention timing.
-For the first physical pilot, all three core changes fire immediately when the
-robot end effector first comes within 18 cm of the target. The trace separately
-records the next policy-query step, exposing any delay caused by open-loop
-action chunks.
-
-## 4. Expected response modes
-
-Each scenario declares one primary response mode:
-
-- `continue`: compensate for a perceptual change and continue;
-- `replan`: revise the physical plan toward the original goal;
-- `follow_update`: execute a revised user instruction;
-- `clarify`: request information when the new intent is ambiguous;
-- `stop`: terminate safely after cancellation;
-- `report_infeasible`: avoid futile or unsafe execution when completion is no
-  longer possible.
-
-This prevents an infeasible episode from being scored as a failure merely
-because the robot correctly declines to complete the original task.
-
-## 5. Minimal scenario record
-
-```json
-{
-  "scenario_id": "geo_move_target_001",
-  "base_task_id": "libero_task_id",
-  "seed": 0,
-  "change_family": "GEO",
-  "change_type": "target_relocation",
-  "severity": "medium",
-  "trigger": {
-    "type": "after_subgoal",
-    "value": "open_drawer"
-  },
-  "change": {
-    "operation": "move_object",
-    "object": "target_object",
-    "destination": "alternate_valid_pose"
-  },
-  "expected_response_mode": "replan",
-  "safety_constraints": []
-}
-```
-
-For randomized v1 cases, `seed` is the intervention seed and the record also
-contains:
-
-```json
-"randomization": {
-  "sampler": "libero-max-v1.0",
-  "draw_id": 1,
-  "seed": 2841930307
-}
-```
-
-Randomness is resolved when the manifest is built. A rollout never samples a
-hidden direction, object, or pose at runtime.
-
-## 6. Required reporting
-
-### 6.1 Coverage
-
-- planned, completed, missing, invalid, and duplicated episode pairs;
-- counts per task, change family, change type, intervention draw, timing bucket,
-  and severity;
-- model checkpoint, decoding settings, observation history, and adaptation
-  configuration.
-
-### 6.2 Outcome table
-
-For every matched pair, report both control and intervention correctness:
-
-| Control | Intervention | Interpretation |
+| Reporting family | Event | Manifest `change_type` |
 | --- | --- | --- |
-| correct | correct | preserved capability |
-| incorrect | correct | intervention-side gain or stochastic recovery |
-| correct | incorrect | regression under change |
-| incorrect | incorrect | persistent failure |
+| Observation | Camera shift | `camera_shift` |
+| Observation | Sensor-noise onset | `sensor_noise_onset` |
+| Geometry | Target relocation | `target_relocation` |
+| Geometry | Receptacle relocation | `receptacle_relocation` |
+| Appearance and clutter | Illumination switch | `illumination_switch` |
+| Appearance and clutter | Visual-theme switch | `visual_theme_switch` |
+| Appearance and clutter | Distractor burst | `distractor_burst` |
+| Path constraint | Obstacle insertion | `obstacle_insertion` |
 
-"Correct" is scenario-aware: it can mean task completion, safe stopping,
-following an updated instruction, or correctly reporting infeasibility.
+These are the paper's reporting families. Legacy `change_family` codes in the
+versioned manifests are retained for compatibility; use the explicit event
+mapping above when reproducing the four-family tables.
 
-### 6.3 Primary metrics
+## Frozen cases and event timing
 
-- **Scenario-aware outcome accuracy**: fraction of intervention episodes with
-  the declared appropriate response and outcome.
-- **Paired robustness delta**: intervention correctness minus matched control
-  correctness.
-- **Regression rate**: control-correct pairs that become intervention-incorrect.
-- **Adaptation latency**: steps between the change event and the first correct
-  change-conditioned action.
-- **Safety violation rate**: collisions, forbidden contacts, or continued
-  execution after a required stop.
+Every case records its suite, task index, initial-state index, policy seed,
+scenario ID, trigger, and resolved change payload. Intervention randomness is
+resolved when the manifest is built. Evaluation must apply those stored values
+without resampling event directions, object identities, or poses.
 
-Confidence intervals and paired statistical tests must accompany aggregate
-comparisons. Category-level results remain required even when the overall
-delta is positive.
+Use the trigger in each released case. Record the event step, the next
+post-event observation/query, and the actions executed between them. The
+policy's native observation cadence and action commitment are part of its
+reported inference configuration. Trigger coverage and post-event response-query
+coverage are separate diagnostics.
 
-## 7. Baseline ladder
+A policy that terminates before the trigger has a valid `trigger_unreached`
+outcome; it is not an infrastructure error or a reason to remove the case.
+Likewise, an event with no subsequent policy query remains in the end-to-end
+score and is identified separately in response-conditioned diagnostics.
 
-The first release should include at least:
+## Reporting and coverage
 
-1. a frozen VLA with no explicit change handling;
-2. the same VLA with additional observation history;
-3. a prompt- or state-conditioned replanning baseline;
-4. an online-adaptation method;
-5. an oracle change-aware reference that receives the intervention label.
+For each policy and track, report:
 
-The oracle is a diagnostic upper reference, not a deployable baseline.
+1. The planned denominator and completed, missing, invalid, and duplicate case
+   counts, with outcomes for both arms.
+2. Base success rate, Dynamic success rate, and the paired difference
+   `Dynamic SR - Base SR`, in percentage points.
+3. The four paired outcomes: preserved success `(1,1)`, change-associated success
+   `(0,1)`, event-associated regression `(1,0)`, and persistent failure `(0,0)`.
+4. Conditional regression: the share of Base successes that fail in Dynamic,
+   `count(1,0) / [count(1,1) + count(1,0)]`.
+5. Confidence intervals and paired tests, plus event, task-suite, source, and
+   source-category breakdowns.
+6. Checkpoint identity, native inference settings, trigger coverage, and
+   post-event response-query coverage.
 
-## 8. Pilot milestone
+All headline rates use the full frozen denominator. Missing records must never
+be dropped to inflate success. Infrastructure and trace-integrity errors must
+be repaired and rerun before an evaluation is declared complete. They are
+reported separately from valid task failures and unreached triggers.
 
-Before scaling the benchmark, run a small paired pilot containing at least one
-scenario from each response mode. The pilot should validate:
+The current comparison contains fourteen complete Max evaluations. Model-family
+labels describe the evaluated policies; heterogeneous training and serving
+protocols prevent interpreting family differences as a controlled architecture
+comparison. See the [current experiment matrix](MAX8000_EXPERIMENT_MATRIX.md)
+and [README results](../README.md#results).
 
-- deterministic intervention replay;
-- identical pre-change state between matched episodes;
-- scenario-aware success evaluators;
-- trace logging around the change event;
-- resume-safe evaluation and duplicate detection;
-- category-level reporting of both gains and regressions.
+## Release validation and integration
 
-The reference runtime and the evaluator integration contract are documented in
-[`RUNTIME_INTEGRATION.md`](RUNTIME_INTEGRATION.md).
+From the repository root:
 
-## 9. Execution manifests
+```bash
+make validate-max8000
+make validate-lite
+make test
+```
 
-Paper runs must use an immutable manifest. Every case fixes the task suite,
-original task index, initial-state index, policy seed, timing bucket, and full
-scenario. The required arms are ordered as `control` then `intervention`.
+The [Lite release guide](../benchmark/lite/README.md) provides the deterministic
+selection record and a runnable evaluation example. The [README quick
+start](../README.md#quick-start) lists the public adapters and full-run commands.
+The [runtime integration guide](RUNTIME_INTEGRATION.md) documents the common
+shard interface and the earlier reference wrappers; current benchmark adapters
+must follow the frozen manifests and paired replay contract described here.
 
-The first executable manifest is
-`examples/manifests/cosmos_physical_pilot_v0.1.json`. Its five cases are a
-calibration pilot, not the frozen v1 benchmark.
+## Earlier design records
+
+The following documents preserve development history and do not define the
+current Max/Lite benchmark or its current experiment status:
+
+- [v1 benchmark design](BENCHMARK_V1_DESIGN.md) and [v1 release
+  contract](DATASET_RELEASE.md): the earlier six-event Core/Full release.
+- [Early paper plan](PAPER_PLAN.md): earlier physical, intent, and feasibility
+  tracks and their development milestones.
+- [Pilot calibration](PILOT_CALIBRATION.md): the five-case simulator pilot.
+
+The [Plus-derived design](MAX_HARD_DESIGN.md) and [PRO-derived
+design](MAX_PRO_HARD_DESIGN.md) record source construction and preflight gates.
+The [human feasibility review](HUMAN_FEASIBILITY_REVIEW.md) is a secondary-review
+procedure, not evidence that all proposed human reviews have been completed.

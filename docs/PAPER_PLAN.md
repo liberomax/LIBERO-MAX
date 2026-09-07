@@ -1,5 +1,11 @@
 # LIBERO-MAX Paper Plan
 
+> **Historical v1 paper plan.** The status, model counts, and proposed tracks
+> below record the earlier pilot and Core studies. The current paper reports
+> fourteen policies on 8,000 matched pairs, with an 800-pair Lite subset. See
+> the [current results](../README.md#results) and
+> [benchmark specification](BENCHMARK_SPEC.md).
+
 Status: Track A Physical Core and Track B Intent Core evaluations are complete
 for Cosmos Policy Predict2-2B and pi0.5-LIBERO. The query-interval and explicit
 notification ablations are also complete. Track C remains outside v1 because a

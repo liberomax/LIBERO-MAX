@@ -14,3 +14,7 @@ logs/
 rollouts/
 paper/
 results/
+# Publish only the audited aggregate; raw run outputs remain ignored.
+!/results/
+/results/*
+!/results/primary_results.csv
