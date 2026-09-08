@@ -36,8 +36,6 @@ def main() -> int:
             "metadata/**",
             "--include",
             "README.md",
-            "--include",
-            "SHA256SUMS.txt",
             "--local-dir",
             str(args.dataset_root),
         ],

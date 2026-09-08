@@ -20,5 +20,5 @@ jobs:
         run: python -m pip install -e . numpy pytest
       - name: Unit and release tests
         run: PYTHONPATH=src:. python -m pytest -q
-      - name: Validate frozen MAX-8000 checksums
-        run: make validate-max8000
+      - name: Validate Max and Lite manifests
+        run: make validate

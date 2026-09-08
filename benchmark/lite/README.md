@@ -34,36 +34,13 @@ Rebuild it deterministically from LIBERO-MAX:
 python scripts/build_lite_split.py
 ```
 
-## Evaluate a checkpoint on LIBERO-MAX Lite
+## Evaluate a checkpoint
 
-Use the same checkpoint and native serving configuration that would be used on
-LIBERO-MAX. LIBERO-MAX Lite changes case membership only; it does not change the
-action horizon, query interval, decoding steps, or model seed. From the
-repository root, the generic scheduler can run any compatible shard adapter on
-every visible GPU. For example:
+Follow the [evaluation guide](../../docs/RUNTIME_INTEGRATION.md) using
+`benchmark/lite/libero_max_lite.json`. It runs the 560 Plus-derived and 240
+PRO-derived cases in their matching environments and aggregates all 800 pairs.
+Use the same checkpoint and native inference settings for both source groups
+and for the subsequent Max evaluation.
 
-```bash
-python scripts/run_dynamic_benchmark.py \
-  benchmark/lite/libero_max_lite.json \
-  --runner scripts/run_xvla_persistent_shard.py \
-  --output-root artifacts/xvla-lite \
-  -- \
-  --lerobot-root /path/to/lerobot \
-  --checkpoint /path/to/xvla-libero-checkpoint \
-  --query-interval 30
-```
-
-The scheduler discovers all GPUs visible through `CUDA_VISIBLE_DEVICES`,
-assigns suite shards dynamically, and retries incomplete shards with `--resume`.
-Pass `--gpus 0,2` to use an explicit subset. A complete LIBERO-MAX Lite run contains 800
-terminal pair records and scores 1,600 rollouts: one Base and one Dynamic rollout
-for every released case ID. Failed or missing cases stay in the 800-pair
-denominator.
-
-After validating an integration on LIBERO-MAX Lite, evaluate LIBERO-MAX by
-replacing the manifest with `benchmark/max8000/libero_max_8000.json` and using a
-separate output root. Do not change the checkpoint or serving configuration
-between benchmarks.
-
-`case_index.csv` makes the released membership easy to audit.
-`selection_summary.json` records the seed, quotas, and source digest.
+`case_index.csv` lists the released cases. `selection_summary.json` records the
+selection seed, quotas, and source manifest.

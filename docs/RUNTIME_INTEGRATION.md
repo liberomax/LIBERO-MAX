@@ -1,132 +1,144 @@
-# Runtime Integration Contract
+# Run an evaluation
 
-LIBERO-MAX separates **when** a change occurs from **how** a simulator applies
-it. This keeps trigger semantics testable without importing LIBERO or MuJoCo.
+Start with Lite (800 pairs), then use the same checkpoint and inference settings
+on Max (8,000 pairs). The commands below use X-VLA on one GPU. Other public
+adapters are listed in the [README](../README.md#supported-model-adapters).
 
-## Episode loop
+## 1. Prepare the model and simulation environments
 
-For each control/intervention pair, restore the exact same initial simulator
-state and policy state. In the intervention arm, call the runtime immediately
-before every policy query:
+Use the model's upstream CUDA environment and a local LIBERO checkpoint. For
+X-VLA, `--lerobot-root` must contain the LeRobot X-VLA implementation used by
+the checkpoint, including its LIBERO observation processors. Model weights and
+model dependencies are installed separately from this benchmark package.
 
-```python
-runtime.reset(original_instruction)
-observation = env.set_init_state(init_state)
+From the LIBERO-MAX repository root, install the benchmark in that environment:
 
-for step in range(max_steps):
-    event = runtime.maybe_apply(
-        TriggerContext(step=step, max_steps=max_steps, events=detected_events)
-    )
-    if event is not None:
-        observation = backend.refresh_observation()
-        trace.write(event)
-
-    action = policy(observation, runtime.current_instruction)
-    observation, reward, done, info = env.step(action)
+```bash
+python -m pip install -e .
 ```
 
-Applying the change before the policy query guarantees that the first
-post-change action is conditioned on the changed observation or instruction.
+Plus and PRO use different task registries and data roots. Run them in separate
+processes so each case uses its original source environment. Prepare the pinned
+source checkouts:
 
-## Event-backed triggers
+```bash
+mkdir -p .deps
+git clone https://github.com/sylvestf/LIBERO-plus.git .deps/LIBERO-plus
+git -C .deps/LIBERO-plus checkout 4976dc30028e805ff8094b55501d532c48fec182
 
-The evaluator converts task-progress detectors into these canonical event keys:
+git clone https://github.com/Zxy-MLlab/LIBERO-PRO.git .deps/LIBERO-PRO
+git -C .deps/LIBERO-PRO checkout 2b910b5b5f53016bef9907632f6f840f1ce2229c
 
-| Trigger | Required event key |
-| --- | --- |
-| `before_grasp: mug` | `pregrasp:mug` |
-| `after_grasp: mug` | `grasp:mug` |
-| `after_subgoal: open_drawer` | `subgoal:open_drawer` |
-| `on_region_entry: transfer_corridor` | `region:transfer_corridor` |
+python scripts/setup_libero_pro_substrate.py \
+  --libero-pro-root .deps/LIBERO-PRO \
+  --dataset-root .deps/libero-pro-data \
+  --config-dir .deps/libero-pro-config
+```
 
-`fixed_step` and `progress_fraction` are derived directly from the runtime
-step. Fixed-step triggers are intended for deterministic diagnostics; benchmark
-scenarios should prefer semantically matched progress events.
+The setup command uses the Hugging Face `hf` CLI to download the pinned PRO
+BDDL and initial-state files. Install the simulator dependencies required by
+the source repositories in the model environment; the reference runtime uses
+MuJoCo 3.2.6 and robosuite 1.4.0. Ensure that the Plus checkout contains its
+`libero/libero/bddl_files`, `init_files`, and `assets` directories.
 
-## Exactly-once guarantee
+Create an isolated Plus configuration:
 
-`InterventionRuntime` marks a change as applied only after the backend succeeds.
-Subsequent calls return no event. Every successful event records:
+```bash
+python - <<'PY'
+import json
+from pathlib import Path
+source = Path('.deps/LIBERO-plus/libero/libero').resolve()
+config = Path('.deps/libero-plus-config')
+config.mkdir(parents=True, exist_ok=True)
+paths = {
+    'benchmark_root': source,
+    'bddl_files': source / 'bddl_files',
+    'init_states': source / 'init_files',
+    'assets': source / 'assets',
+    'datasets': Path('.deps/libero-plus-data').resolve(),
+}
+(config / 'config.yaml').write_text(json.dumps({k: str(v) for k, v in paths.items()}))
+PY
+```
 
-- scenario ID and seed;
-- simulator step;
-- trigger and change payload;
-- instruction before and after the change;
-- backend-reported before/after state;
-- expected response mode.
+## 2. Run the two source groups
 
-## Model adapter contract
+Split the frozen manifest by source. This preserves every case ID and event
+parameter. Set `MANIFEST=benchmark/max8000/libero_max_8000.json` and a new
+`RUN` directory to run Max instead.
 
-A shard adapter is a Python entry point with this common interface:
+```bash
+MANIFEST=benchmark/lite/libero_max_lite.json
+RUN=artifacts/xvla-lite
+
+python - "$MANIFEST" "$RUN" <<'PY'
+import json
+import sys
+from pathlib import Path
+manifest = json.loads(Path(sys.argv[1]).read_text())
+output = Path(sys.argv[2])
+output.mkdir(parents=True, exist_ok=True)
+for source in ('plus', 'pro'):
+    cases = [case for case in manifest['cases']
+             if (case.get('substrate_variant', {}).get('benchmark') == 'LIBERO-PRO')
+             == (source == 'pro')]
+    (output / f'{source}.json').write_text(json.dumps({**manifest, 'cases': cases}))
+PY
+
+export PYTHONPATH="$PWD/scripts/libero_source_overlay:$PWD/src${PYTHONPATH:+:$PYTHONPATH}"
+
+TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1 \
+LIBERO_SOURCE_PACKAGE_ROOT="$PWD/.deps/LIBERO-plus/libero" \
+LIBERO_CONFIG_PATH="$PWD/.deps/libero-plus-config" \
+python scripts/run_xvla_persistent_benchmark.py "$RUN/plus.json" \
+  --output-root "$RUN/plus" --gpus 0 --resume \
+  --lerobot-root /path/to/lerobot --checkpoint /path/to/checkpoint \
+  --query-interval 30
+
+LIBERO_SOURCE_PACKAGE_ROOT="$PWD/.deps/LIBERO-PRO/libero" \
+LIBERO_CONFIG_PATH="$PWD/.deps/libero-pro-config" \
+python scripts/run_xvla_persistent_benchmark.py "$RUN/pro.json" \
+  --output-root "$RUN/pro" --gpus 0 --resume \
+  --lerobot-root /path/to/lerobot --checkpoint /path/to/checkpoint \
+  --query-interval 30
+```
+
+The Plus command enables loading the pinned source’s NumPy initial-state
+files with recent PyTorch versions. Replace the two model paths with the same
+checkout and checkpoint in both commands. `--gpus 0,1` enables two GPUs; `--resume` skips completed cases.
+For another model, use its adapter and native query interval in both runs.
+
+## 3. Aggregate against the complete manifest
+
+```bash
+python scripts/aggregate_cosmos_benchmark.py "$RUN/plus" \
+  --case-root "$RUN/pro" --manifest "$MANIFEST" \
+  --output-dir "$RUN/summary" --query-interval 30 --require-render-qa
+```
+
+Despite its historical filename, this aggregator is shared by the public
+adapters. It writes `benchmark_summary.json` and `end_to_end_results.jsonl`.
+Use the end-to-end Base and Dynamic success rates and their paired difference.
+A complete result accounts for all 800 Lite or 8,000 Max pairs. Check
+`coverage.execution_complete`; repair missing or invalid runs before reporting.
+Valid task failures and unreached triggers remain in the denominator.
+
+## Add a model adapter
+
+The common shard interface is:
 
 ```text
 runner.py MANIFEST --output-root ROOT --shard-index I --num-shards N --resume [model arguments]
 ```
 
-It must load cases with `cases[I::N]`, keep one policy instance resident, write
-one terminal `DONE` or `FAILED` marker per case, and preserve Base actions
-exactly before the event. Model repositories and weights remain external and
-are supplied as explicit arguments.
+Load `cases[I::N]`, keep one policy instance resident, and write each case below
+`ROOT/cases/CASE_ID`. Use the [X-VLA shard](../scripts/run_xvla_persistent_shard.py)
+as the complete example. It restores the same initial state and policy seed,
+replays Base actions exactly until the event, applies the stored intervention,
+and records both terminal outcomes. Keep the initial-state and action-prefix
+checks: they establish that a Base/Dynamic pair is valid.
 
-`scripts/run_dynamic_benchmark.py` is model-agnostic. It splits cases by task
-suite, uses all GPUs visible to the process unless `--gpus` is supplied, and
-dynamically assigns work units to avoid idle devices near the end of a run.
-The scheduler changes resource allocation only; it does not change event
-timing, policy cadence, actions, or scoring.
-
-## Reference evaluation adapters
-
-The public adapters below exercise the same frozen manifest and paired replay
-contract used for the reported evaluations.
-
-| Model | Family | Multi-GPU launcher |
-| --- | --- | --- |
-| pi0.5 | VLA | `scripts/run_openpi_persistent_benchmark.sh` |
-| OpenVLA-OFT | VLA | `scripts/run_openvla_oft_persistent_benchmark.py` |
-| X-VLA | VLA | `scripts/run_xvla_persistent_shard.py` |
-| VLA-JEPA | VLA + WM | `scripts/run_vlajepa_persistent_benchmark.py` |
-| Cosmos-Policy | WAM | `scripts/run_cosmos_persistent_benchmark.py` |
-| Fast-WAM | WAM | `scripts/run_fastwam_persistent_benchmark.py` |
-
-Worker output is written per logical shard and can be resumed without
-re-evaluating completed cases. A publishable run must cover all 8,000 case IDs,
-contain a terminal outcome for both arms, record the checkpoint and native
-query cadence, and pass the exact replay checks before aggregation.
-
-When an installed `libero` wheel shadows a pinned LIBERO-Plus or LIBERO-PRO
-source checkout, prepend `scripts/libero_source_overlay` to `PYTHONPATH` and set
-`LIBERO_SOURCE_PACKAGE_ROOT` to that checkout's outer `libero` directory. The
-overlay changes import resolution only. It does not patch the simulator,
-benchmark cases, or upstream source code.
-
-## Current MuJoCo operations
-
-The reference `LiberoMujocoBackend` implements:
-
-- `shift_camera` through MuJoCo camera position/quaternion updates;
-- `move_object` for free-joint objects or fixed fixtures;
-- `insert_obstacle` when the obstacle is preloaded in the scene;
-- `remove_object` by moving the named entity to an off-world position;
-- `set_lighting` by scaling MuJoCo light parameters.
-
-Intent changes (`replace_instruction` and `cancel_instruction`) are handled by
-the runtime because they modify the next policy query rather than simulator
-physics.
-
-## Cosmos Policy integration
-
-`CosmosInterventionEnv` applies physical interventions after an environment
-step and only at a Cosmos action-chunk boundary. The observation returned to
-the upstream evaluator is regenerated after the change, and the action queue
-is empty at that boundary, so the next action chunk is queried from the
-post-change observation.
-
-The integration records an SHA-256 digest of the serialized LIBERO initial
-state in each arm. A paired summary is valid only when control and intervention
-digests, task descriptions, suite names, task indices, and policy seeds match.
-The first reference smoke uses standard `libero_object` task 0, initial state 0,
-seed 195, and a camera shift after the first 16-action chunk.
-
-This wrapper currently supports physical changes only. Intent changes require
-changing the instruction passed into each Cosmos policy query and are rejected
-by the launcher until that query-level hook is implemented.
+`scripts/run_dynamic_benchmark.py` provides optional dynamic GPU scheduling
+for this interface. Give it one source group at a time with the matching
+source environment. Resource scheduling does not change event timing or
+model inference settings.

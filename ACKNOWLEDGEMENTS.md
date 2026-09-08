@@ -20,11 +20,11 @@ components:
 
 - LIBERO-Plus code revision `4976dc30028e805ff8094b55501d532c48fec182`;
 - LIBERO-PRO dataset revision `c86fc3b8293185a6f373677018ff3e37f8391602`;
-- LIBERO-PRO code revision inspected for compatibility
-  `eafdb809426b13153aa1e4c42d6601844217dfec`.
+- LIBERO-PRO runtime revision used for evaluation
+  `2b910b5b5f53016bef9907632f6f840f1ce2229c`.
 
 The corresponding machine-readable provenance is stored in
-[`benchmark/max8000/release_summary.json`](benchmark/max8000/release_summary.json)
+[`benchmark/max8000/libero_max_8000.json`](benchmark/max8000/libero_max_8000.json)
 and [`benchmark/max8000/pro_source_lock.json`](benchmark/max8000/pro_source_lock.json).
 
 ## Evaluation codebases

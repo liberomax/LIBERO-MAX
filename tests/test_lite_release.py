@@ -1,5 +1,4 @@
 import csv
-import hashlib
 import json
 import subprocess
 import tempfile
@@ -29,6 +28,9 @@ class LiteReleaseTest(unittest.TestCase):
         lite_ids = {case["case_id"] for case in lite["cases"]}
         self.assertEqual(len(lite_ids), 800)
         self.assertTrue(lite_ids.issubset(max_ids))
+        max_by_id = {case["case_id"]: case for case in max_manifest["cases"]}
+        for case in lite["cases"]:
+            self.assertEqual(case, max_by_id[case["case_id"]])
 
         event_counts = Counter(
             case["scenario"]["change_type"] for case in lite["cases"]
@@ -59,11 +61,6 @@ class LiteReleaseTest(unittest.TestCase):
             case["case_id"] for case in lite["cases"]
         ])
 
-    def test_release_checksums_match(self):
-        for line in (LITE / "SHA256SUMS").read_text().splitlines():
-            digest, name = line.split("  ", 1)
-            actual = hashlib.sha256((LITE / name).read_bytes()).hexdigest()
-            self.assertEqual(actual, digest, name)
 
     def test_builder_reproduces_release(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -83,7 +80,6 @@ class LiteReleaseTest(unittest.TestCase):
                 "libero_max_lite.json",
                 "case_index.csv",
                 "selection_summary.json",
-                "SHA256SUMS",
             ):
                 self.assertEqual((Path(temp_dir) / name).read_bytes(), (LITE / name).read_bytes())
 

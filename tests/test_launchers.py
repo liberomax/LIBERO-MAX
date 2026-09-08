@@ -29,23 +29,6 @@ class CosmosLauncherTest(unittest.TestCase):
         self.assertIn('--num_open_loop_steps "$QUERY_INTERVAL"', cosmos)
         self.assertIn('${QUERY_INTERVAL:-5}', openpi)
 
-    def test_preflight_enables_trusted_libero_state_loading_before_imports(self) -> None:
-        preflight = (
-            ROOT / "scripts/preflight_manifest_interventions.py"
-        ).read_text(encoding="utf-8")
-        opt_out = (
-            'os.environ.setdefault("TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD", "1")'
-        )
-        self.assertIn(opt_out, preflight)
-        self.assertLess(preflight.index(opt_out), preflight.index("from libero.libero"))
-        self.assertLess(
-            preflight.index(opt_out),
-            preflight.index("from cosmos_policy.experiments.robot.libero"),
-        )
-        self.assertLess(
-            preflight.index('if not hasattr(np, "float_")'),
-            preflight.index("from libero.libero"),
-        )
 
     def test_openpi_client_restores_libero_plus_numpy_alias(self) -> None:
         runner = (ROOT / "scripts/run_openpi_libero_max.py").read_text(
@@ -76,28 +59,7 @@ class CosmosLauncherTest(unittest.TestCase):
         self.assertIn('"MUJOCO_EGL_DEVICE_ID": gpu', launcher)
         self.assertIn('"--num-shards"', launcher)
 
-    def test_hard_preflight_uses_plus_overlay_and_physical_egl_ids(self) -> None:
-        launcher = (
-            ROOT / "scripts/run_max_hard_preflight.sh"
-        ).read_text(encoding="utf-8")
-        self.assertIn("libero-plus-python-overlay", launcher)
-        self.assertIn("LIBERO-plus", launcher)
-        self.assertIn("$DEPS_DIR/libero-plus-config}", launcher)
-        self.assertNotIn("libero-plus-config/config.yaml", launcher)
-        self.assertIn('MUJOCO_EGL_DEVICE_ID="$gpu"', launcher)
-        self.assertIn('--num-shards "${#gpu_ids[@]}"', launcher)
 
-    def test_hard_cosmos_wrapper_uses_plus_assets_and_persistent_runner(self) -> None:
-        launcher = (
-            ROOT / "scripts/run_max_hard_cosmos.sh"
-        ).read_text(encoding="utf-8")
-        self.assertIn("libero-plus-python-overlay", launcher)
-        self.assertIn("libero_plus_t5_embeddings.pkl", launcher)
-        self.assertIn("hf-cache-cosmos", launcher)
-        self.assertIn("run_cosmos_persistent_benchmark.py", launcher)
-        self.assertIn('--gpus "$GPUS"', launcher)
-        self.assertIn('--shard-indices "$SHARD_INDICES"', launcher)
-        self.assertIn('--num-shards "$NUM_SHARDS"', launcher)
 
     def test_openpi_launchers_use_plus_assets_and_persistent_servers(self) -> None:
         paired = (ROOT / "scripts/run_openpi_paired.sh").read_text(encoding="utf-8")

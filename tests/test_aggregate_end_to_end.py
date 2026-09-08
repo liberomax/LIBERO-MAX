@@ -155,7 +155,7 @@ class AggregateEndToEndTest(unittest.TestCase):
     def test_derived_aggregation_materializes_manifest_and_provenance(self):
         source_manifest = (
             Path(__file__).parents[1]
-            / "benchmark/max8000/libero_max_pro_model_comparison_800.json"
+            / "benchmark/lite/libero_max_lite.json"
         )
         manifest = json.loads(source_manifest.read_text(encoding="utf-8"))
         manifest["cases"] = manifest["cases"][:1]

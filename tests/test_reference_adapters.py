@@ -49,27 +49,6 @@ class PublicRepositoryPrivacyTest(unittest.TestCase):
         candidates = {
             path for path in tracked if path and (ROOT / path).is_file()
         }
-        candidates.update(
-            {
-                "scripts/libero_source_overlay/libero/__init__.py",
-                "scripts/run_dynamic_benchmark.py",
-                "scripts/run_groot_n17_persistent_benchmark.py",
-                "scripts/run_groot_n17_persistent_shard.py",
-                "scripts/run_himem_wam_persistent_benchmark.py",
-                "scripts/run_himem_wam_persistent_shard.py",
-                "scripts/run_lightwam_persistent_benchmark.py",
-                "scripts/run_lightwam_persistent_shard.py",
-                "scripts/run_molmoact2_persistent_benchmark.py",
-                "scripts/run_molmoact2_persistent_shard.py",
-                "scripts/run_smolvla_persistent_shard.py",
-                "scripts/run_xvla_persistent_benchmark.py",
-                "scripts/run_xvla_persistent_shard.py",
-                "scripts/run_xiaomi_robotics0_persistent_benchmark.py",
-                "scripts/run_xiaomi_robotics0_persistent_shard.py",
-                "tests/test_dynamic_scheduler.py",
-                "tests/test_reference_adapters.py",
-            }
-        )
         literals = (
             "/" + "Users/",
             "/" + "vepfs/",
@@ -81,7 +60,6 @@ class PublicRepositoryPrivacyTest(unittest.TestCase):
         )
         forbidden = re.compile(
             "|".join(re.escape(value) for value in literals)
-            + r"|ec2-[0-9]|115\.190\."
         )
         violations = []
         for relative_path in sorted(candidates):

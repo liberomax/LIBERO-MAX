@@ -19,14 +19,6 @@
 
 LIBERO-MAX measures whether a robot policy preserves task success after an **exogenous change introduced during execution**. Every Dynamic rollout is paired with a no-event Base control that shares the task, reset state, instruction, policy seed, and executed action prefix. The pair differs only when one frozen event is applied to Dynamic, isolating the outcome effect of adding that online change. The benchmark does not infer whether a policy internally detected the event or deliberately replanned.
 
-> **News — 2026-09-07.** The README and project website now include the complete fourteen-policy result table, downloadable counts and rates, and updated figures with the new LIBERO-MAX wordmark.
->
-> **News — 2026-09-03.** We expanded the primary comparison to fourteen complete VLA, VLA+WAM, and WAM evaluations and released the fixed 800-pair LIBERO-MAX Lite track.
->
-> **News — 2026-08-15.** We released the LIBERO-MAX dataset and the initial complete results across five VLA and WAM policies.
->
-> **Coming soon.** Paper PDF and BibTeX.
-
 ## LIBERO-MAX and LIBERO-MAX Lite
 
 The repository provides two evaluation scales with the same paired protocol and event taxonomy:
@@ -117,65 +109,35 @@ The primary fourteen-policy paper evaluation additionally includes Xiaomi-Roboti
 
 ## Quick start
 
-### 1. Install and validate the release
-
 ```bash
 git clone https://github.com/yunbeizhang/LIBERO-MAX.git
 cd LIBERO-MAX
 python -m pip install -e .
-
-# Validate the full 8,000-pair release and the fixed 800-pair split.
-make validate-max8000
-make validate-lite
-make test
+make validate
 ```
 
-### 2. Test a model on LIBERO-MAX Lite
+Then follow the [evaluation guide](docs/RUNTIME_INTEGRATION.md) to run a
+checkpoint on Lite and aggregate the results. It provides the pinned simulator
+setup and a single-GPU X-VLA example: run the Plus and PRO source groups with
+their respective environments, then combine their traces against the original
+800-pair manifest. Use the same checkpoint and inference settings on Max by
+changing the manifest to `benchmark/max8000/libero_max_8000.json`.
 
-The example below uses X-VLA. Replace the adapter-specific arguments with those required by the model you are evaluating.
-
-```bash
-python scripts/run_dynamic_benchmark.py \
-  benchmark/lite/libero_max_lite.json \
-  --runner scripts/run_xvla_persistent_shard.py \
-  --output-root artifacts/xvla-libero-max-lite \
-  -- \
-  --lerobot-root /path/to/lerobot \
-  --checkpoint /path/to/xvla/checkpoint \
-  --query-interval 30
-```
-
-This schedules all 800 pairs across every visible GPU with dynamic work stealing. Restrict devices when needed with `--gpus 0,2`.
-
-### 3. Run the same adapter on LIBERO-MAX
-
-```bash
-python scripts/run_dynamic_benchmark.py \
-  benchmark/max8000/libero_max_8000.json \
-  --runner scripts/run_xvla_persistent_shard.py \
-  --output-root artifacts/xvla-libero-max \
-  -- \
-  --lerobot-root /path/to/lerobot \
-  --checkpoint /path/to/xvla/checkpoint \
-  --query-interval 30
-```
-
-Keep the checkpoint and its native inference configuration fixed between the two scales. Each case ends in `DONE` or `FAILED`; failures remain in the denominator, and a complete run must account for all 800 or 8,000 matched pairs.
-
-For custom adapters, follow the common shard interface in the [runtime integration guide](docs/RUNTIME_INTEGRATION.md); [`scripts/run_xvla_persistent_shard.py`](scripts/run_xvla_persistent_shard.py) is a complete reference implementation.
+Model weights and the upstream model environment are required for evaluation.
+The [CPU tests](tests/README.md) can be run independently of model downloads.
 
 ## Repository structure
 
 ```text
 LIBERO-MAX/
 ├── benchmark/
-│   ├── max8000/              # Full 8,000-pair release and checksums
-│   └── lite/                 # Fixed 800-pair subset and validation metadata
+│   ├── max8000/              # Full 8,000-pair manifest and source revisions
+│   └── lite/                 # Fixed 800-pair manifest and selection record
 ├── schemas/                 # Manifest, scenario, and result schemas
 ├── results/                 # Audited primary counts and success rates
 ├── src/libero_max/           # Validation, pairing, events, and evaluation utilities
-├── scripts/                  # Release builders, schedulers, and model adapters
-├── examples/                 # Minimal policy integration
+├── scripts/                  # Model adapters, aggregation, and figure generation
+├── examples/                 # Small scenario and paired-result examples
 ├── tests/                    # Protocol, release, and launcher checks
 ├── docs/                     # Benchmark specification and evaluation guide
 ├── assets/figures/           # Figures rendered in this README

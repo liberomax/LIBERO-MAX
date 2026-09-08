@@ -103,38 +103,19 @@ reported separately from valid task failures and unreached triggers.
 The current comparison contains fourteen complete Max evaluations. Model-family
 labels describe the evaluated policies; heterogeneous training and serving
 protocols prevent interpreting family differences as a controlled architecture
-comparison. See the [current experiment matrix](MAX8000_EXPERIMENT_MATRIX.md)
-and [README results](../README.md#results).
+comparison. See the [README results](../README.md#results).
 
 ## Release validation and integration
 
 From the repository root:
 
 ```bash
-make validate-max8000
-make validate-lite
-make test
+make validate
 ```
 
 The [Lite release guide](../benchmark/lite/README.md) provides the deterministic
 selection record and a runnable evaluation example. The [README quick
 start](../README.md#quick-start) lists the public adapters and full-run commands.
-The [runtime integration guide](RUNTIME_INTEGRATION.md) documents the common
-shard interface and the earlier reference wrappers; current benchmark adapters
-must follow the frozen manifests and paired replay contract described here.
-
-## Earlier design records
-
-The following documents preserve development history and do not define the
-current Max/Lite benchmark or its current experiment status:
-
-- [v1 benchmark design](BENCHMARK_V1_DESIGN.md) and [v1 release
-  contract](DATASET_RELEASE.md): the earlier six-event Core/Full release.
-- [Early paper plan](PAPER_PLAN.md): earlier physical, intent, and feasibility
-  tracks and their development milestones.
-- [Pilot calibration](PILOT_CALIBRATION.md): the five-case simulator pilot.
-
-The [Plus-derived design](MAX_HARD_DESIGN.md) and [PRO-derived
-design](MAX_PRO_HARD_DESIGN.md) record source construction and preflight gates.
-The [human feasibility review](HUMAN_FEASIBILITY_REVIEW.md) is a secondary-review
-procedure, not evidence that all proposed human reviews have been completed.
+The [runtime integration guide](RUNTIME_INTEGRATION.md) provides environment setup,
+source-specific evaluation commands, aggregation, and the common adapter
+interface.

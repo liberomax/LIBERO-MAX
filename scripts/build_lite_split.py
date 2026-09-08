@@ -3,7 +3,6 @@
 
 import argparse
 import csv
-import hashlib
 import json
 import random
 from collections import Counter
@@ -13,10 +12,6 @@ from pathlib import Path
 SELECTION_SEED = 20260830
 LITE_PLUS_PER_EVENT = 70
 LITE_PRO_PER_EVENT = 30
-
-
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _source_track(case: dict) -> str:
@@ -134,20 +129,11 @@ def build_split(
             "per event; the same fixed pool is used for cadence analysis"
         ),
         "source_manifest": "../max8000/libero_max_8000.json",
-        "source_manifest_sha256": _sha256(source_path),
-        "manifest_sha256": _sha256(manifest_path),
-        "case_index_sha256": _sha256(case_index_path),
         "event_counts": dict(sorted(event_counts.items())),
         "source_counts": dict(sorted(source_counts.items())),
     }
     _write_json(summary_path, summary)
 
-    checksums = output_dir / "SHA256SUMS"
-    lines = [
-        "%s  %s" % (_sha256(path), path.name)
-        for path in (manifest_path, case_index_path, summary_path)
-    ]
-    checksums.write_text("\n".join(lines) + "\n")
 
 
 def main() -> None:
