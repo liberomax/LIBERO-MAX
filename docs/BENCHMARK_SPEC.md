@@ -115,7 +115,7 @@ make validate
 
 The [Lite release guide](../benchmark/lite/README.md) provides the deterministic
 selection record and a runnable evaluation example. The [README quick
-start](../README.md#quick-start) lists the public adapters and full-run commands.
+start](../README.md#quick-start) provides installation and one model example.
 The [runtime integration guide](RUNTIME_INTEGRATION.md) provides environment setup,
 source-specific evaluation commands, aggregation, and the common adapter
 interface.

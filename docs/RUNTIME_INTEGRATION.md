@@ -1,8 +1,8 @@
 # Run an evaluation
 
 Start with Lite (800 pairs), then use the same checkpoint and inference settings
-on Max (8,000 pairs). The commands below use X-VLA on one GPU. Other public
-adapters are listed in the [README](../README.md#supported-model-adapters).
+on Max (8,000 pairs). This guide provides the complete setup and execution
+steps for the single-GPU X-VLA example in the [Quick start](../README.md#quick-start).
 
 ## 1. Prepare the model and simulation environments
 

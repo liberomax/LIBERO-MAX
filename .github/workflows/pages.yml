@@ -28,11 +28,10 @@ jobs:
         uses: actions/configure-pages@v6
       - name: Assemble static site
         run: |
-          mkdir -p _site/assets/figures _site/assets/hero _site/assets/media _site/assets/brand _site/results
+          mkdir -p _site/assets/figures _site/assets/hero _site/assets/media _site/assets/brand
           cp index.html _site/
           cp assets/figures/*.png assets/figures/*.svg _site/assets/figures/
           cp assets/brand/*.svg _site/assets/brand/
-          cp results/*.csv _site/results/
           cp assets/hero/liberomax_hero_embedded.svg _site/assets/hero/
           cp assets/media/*.gif _site/assets/media/
           cp assets/og.png _site/assets/og.png
