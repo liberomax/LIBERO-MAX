@@ -1,19 +1,19 @@
 <div align="center">
 
-<h1><img src="assets/brand/liberomax_wordmark_white.svg" width="520" alt="LIBERO-MAX"></h1>
+<h1><img src="assets/brand/liberomax_wordmark_white.svg?v=20260911" width="520" alt="LIBERO-MAX"></h1>
 
 ### Do robot policies adapt when the world changes during execution?
 
 [![Paper](https://img.shields.io/badge/Paper-coming%20soon-6b7280?style=flat-square)](#citation)
-[![LIBERO-MAX](https://img.shields.io/badge/LIBERO--MAX-8%2C000%20pairs-14532d?style=flat-square)](benchmark/max8000)
-[![Evaluated](https://img.shields.io/badge/Evaluated-14%20policies-b45309?style=flat-square)](#results)
+[![LIBERO-MAX](https://img.shields.io/badge/LIBERO--MAX-8%2C000%20pairs-a7444e?style=flat-square)](benchmark/max8000)
+[![Evaluated](https://img.shields.io/badge/Evaluated-14%20policies-62676e?style=flat-square)](#results)
 [![Website](https://img.shields.io/badge/Project-website-111827?style=flat-square)](https://yunbeizhang.github.io/LIBERO-MAX/)
 
 [Dataset](benchmark/max8000) · [LIBERO-MAX Lite](benchmark/lite) · [Benchmark specification](docs/BENCHMARK_SPEC.md) · [Evaluation guide](docs/RUNTIME_INTEGRATION.md)
 
 </div>
 
-![LIBERO-MAX benchmark overview](assets/figures/benchmark_overview.png)
+![LIBERO-MAX benchmark overview](assets/figures/benchmark_overview.png?v=20260911)
 
 LIBERO-MAX measures whether a robot policy preserves task success after an **exogenous change introduced during execution**. Every Dynamic rollout is paired with a no-event Base control that shares the task, reset state, instruction, policy seed, and executed action prefix. The pair differs only when one frozen event is applied to Dynamic, isolating the outcome effect of adding that online change. The benchmark does not infer whether a policy internally detected the event or deliberately replanned.
 
@@ -38,13 +38,12 @@ The eight online changes cover four event families:
 
 ### Lineage and acknowledgements
 
-LIBERO-MAX builds on three public foundations. The linked names point to the corresponding papers.
+![Construction of LIBERO-MAX from LIBERO, LIBERO-Plus, and LIBERO-PRO](assets/figures/benchmark_construction.png?v=20260911)
 
-| Foundation | Contribution to LIBERO-MAX |
-|---|---|
-| [LIBERO](https://arxiv.org/abs/2306.03310) | Task suites, simulation environments, and demonstration corpus |
-| [LIBERO-Plus](https://arxiv.org/abs/2510.13626) | Seven controllable static source dimensions used to construct 5,600 pairs |
-| [LIBERO-PRO](https://arxiv.org/abs/2510.03827) | Ten semantic, geometric, and visual source categories used to construct 2,400 pairs |
+Built on [LIBERO](https://arxiv.org/abs/2306.03310), with 5,600 source cases from
+[LIBERO-Plus](https://arxiv.org/abs/2510.13626) and 2,400 from
+[LIBERO-PRO](https://arxiv.org/abs/2510.03827). Each source case becomes a matched
+Base/Dynamic pair with one change during execution.
 
 See [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the complete attribution and license notes.
 
@@ -64,13 +63,13 @@ Across fourteen policies, one online event reduces success by 11.0–25.7 points
 reported rates and gaps within 2.4 points of Max and preserves 88 of 91 Dynamic
 rank orderings.
 
-![LIBERO-MAX and LIBERO-MAX Lite validation](assets/figures/max_lite_validation.png)
+![LIBERO-MAX and LIBERO-MAX Lite validation](assets/figures/max_lite_validation.png?v=20260911)
 
 ### Where policies lose success
 
 The event-level view reports Dynamic success loss from the matched Base control. Geometry and observation changes produce the largest median losses, with substantial checkpoint-specific variation.
 
-![Dynamic success loss from Base by event type](assets/figures/change_type_breakdown.png)
+![Dynamic success loss from Base by event type](assets/figures/change_type_breakdown.png?v=20260911)
 
 ## Quick start
 
