@@ -7,7 +7,7 @@
 [![Paper](https://img.shields.io/badge/Paper-coming%20soon-6b7280?style=flat-square)](#citation)
 [![LIBERO-MAX](https://img.shields.io/badge/LIBERO--MAX-8%2C000%20pairs-a7444e?style=flat-square)](benchmark/max8000)
 [![Evaluated](https://img.shields.io/badge/Evaluated-14%20policies-62676e?style=flat-square)](#results)
-[![Website](https://img.shields.io/badge/Project-website-111827?style=flat-square)](https://yunbeizhang.github.io/LIBERO-MAX/)
+[![Website](https://img.shields.io/badge/Project-website-111827?style=flat-square)](https://liberomax.github.io/)
 
 [Dataset](benchmark/max8000) · [LIBERO-MAX Lite](benchmark/lite) · [Benchmark specification](docs/BENCHMARK_SPEC.md) · [Evaluation guide](docs/RUNTIME_INTEGRATION.md)
 
@@ -74,7 +74,7 @@ The event-level view reports Dynamic success loss from the matched Base control.
 ## Quick start
 
 ```bash
-git clone https://github.com/yunbeizhang/LIBERO-MAX.git
+git clone https://github.com/liberomax/LIBERO-MAX.git
 cd LIBERO-MAX
 python -m pip install -e .
 make validate
@@ -112,8 +112,7 @@ LIBERO-MAX/
 ├── examples/                 # Small scenario and paired-result examples
 ├── tests/                    # Protocol, release, and launcher checks
 ├── docs/                     # Benchmark specification and evaluation guide
-├── assets/figures/           # Figures rendered in this README
-└── index.html                # Project website
+└── assets/figures/           # Figures rendered in this README
 ```
 
 ## Citation
@@ -121,5 +120,5 @@ LIBERO-MAX/
 The paper PDF and BibTeX will be added after release. For now, please cite the repository URL:
 
 ```text
-https://github.com/yunbeizhang/LIBERO-MAX
+https://github.com/liberomax/LIBERO-MAX
 ```
