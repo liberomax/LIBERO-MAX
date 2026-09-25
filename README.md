@@ -1,21 +1,22 @@
 <div align="center">
 
-<h1><img src="assets/brand/liberomax_wordmark_white.svg?v=20260911" width="520" alt="LIBERO-MAX"></h1>
+<h1><img src="assets/brand/liberomax_wordmark_white.svg?v=20260924" width="520" alt="LIBERO-MAX"></h1>
 
-### Do robot policies adapt when the world changes during execution?
+### Do Robot Policies Adapt When the World Changes?
 
+[![Project](https://img.shields.io/badge/Project-website-a7444e?style=flat-square)](https://liberomax.github.io/)
 [![Paper](https://img.shields.io/badge/Paper-coming%20soon-6b7280?style=flat-square)](#citation)
-[![LIBERO-MAX](https://img.shields.io/badge/LIBERO--MAX-8%2C000%20pairs-a7444e?style=flat-square)](benchmark/max8000)
+[![LIBERO-MAX](https://img.shields.io/badge/LIBERO--MAX-8%20events-a7444e?style=flat-square)](benchmark/max8000)
+[![Pairs](https://img.shields.io/badge/Pairs-8%2C000-62676e?style=flat-square)](benchmark/max8000)
 [![Evaluated](https://img.shields.io/badge/Evaluated-14%20policies-62676e?style=flat-square)](#results)
-[![Website](https://img.shields.io/badge/Project-website-111827?style=flat-square)](https://liberomax.github.io/)
 
 [Dataset](benchmark/max8000) · [LIBERO-MAX Lite](benchmark/lite) · [Benchmark specification](docs/BENCHMARK_SPEC.md) · [Evaluation guide](docs/RUNTIME_INTEGRATION.md)
 
 </div>
 
-![LIBERO-MAX benchmark overview](assets/figures/benchmark_overview.png?v=20260911)
+![LIBERO-MAX benchmark overview](assets/figures/benchmark_overview.png?v=20260924)
 
-LIBERO-MAX measures whether a robot policy preserves task success after an **exogenous change introduced during execution**. Every Dynamic rollout is paired with a no-event Base control that shares the task, reset state, instruction, policy seed, and executed action prefix. The pair differs only when one frozen event is applied to Dynamic, isolating the outcome effect of adding that online change. The benchmark does not infer whether a policy internally detected the event or deliberately replanned.
+LIBERO-MAX measures whether robot policies remain effective when the world changes **after execution has begun**. Each case pairs a **Base** rollout, which retains the source configuration, with a **Dynamic** rollout that replays the same executed prefix and then receives one controlled event. The task, initial state, instruction, and policy seed are shared. This matched comparison measures the effect of adding a change to an ongoing task.
 
 ## LIBERO-MAX and LIBERO-MAX Lite
 
@@ -38,7 +39,7 @@ The eight online changes cover four event families:
 
 ### Lineage and acknowledgements
 
-![Construction of LIBERO-MAX from LIBERO, LIBERO-Plus, and LIBERO-PRO](assets/figures/benchmark_construction.png?v=20260911)
+![Construction of LIBERO-MAX from LIBERO, LIBERO-Plus, and LIBERO-PRO](assets/figures/benchmark_construction.png?v=20260924)
 
 Built on [LIBERO](https://arxiv.org/abs/2306.03310), with 5,600 source cases from
 [LIBERO-Plus](https://arxiv.org/abs/2510.13626) and 2,400 from
@@ -56,20 +57,99 @@ See [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md) for the complete attribution and 
 
 ## Results
 
-### Full benchmark results
+### Every policy loses success after an online change
 
-Across fourteen policies, one online event reduces success by 11.0–25.7 points;
-20.8%–56.1% of Base successes become Dynamic failures. Lite estimates the
-reported rates and gaps within 2.4 points of Max and preserves 88 of 91 Dynamic
-rank orderings.
+All fourteen policies are evaluated on the same **8,000 Base/Dynamic pairs**.
+Success falls by **11.0–25.7 percentage points** after an event, with every
+paired 95% bootstrap interval below zero.
 
-![LIBERO-MAX and LIBERO-MAX Lite validation](assets/figures/max_lite_validation.png?v=20260911)
+![Base and Dynamic success for all fourteen policies on the full LIBERO-MAX benchmark](assets/figures/performance_gap.png?v=20260924)
 
-### Where policies lose success
+Among tasks solved in Base, **20.8%–56.1% become failures** in Dynamic. Paired
+outcomes distinguish these regressions from tasks that fail in both conditions
+or become successful after the change.
 
-The event-level view reports Dynamic success loss from the matched Base control. Geometry and observation changes produce the largest median losses, with substantial checkpoint-specific variation.
+![Paired task outcomes and conditional regression across fourteen policies](assets/figures/paired_outcomes.png?v=20260924)
 
-![Dynamic success loss from Base by event type](assets/figures/change_type_breakdown.png?v=20260911)
+### Geometry and observation changes reveal shared vulnerabilities
+
+Target relocation causes the largest loss for eleven policies. Camera shifts
+and sensor noise expose additional policy-specific weaknesses, while
+illumination and visual-theme changes are generally milder.
+
+![Dynamic success loss from Base by event type](assets/figures/change_type_breakdown.png?v=20260924)
+
+### Camera controls separate viewpoint difficulty and execution history
+
+We compare **Base, change at Reset, and change Mid-task** on all **1,000 camera
+cases per policy** for X-VLA, π0.5, and HiMem-WAM, totaling 9,000 rollouts.
+The changed view can already impair performance from the first input. Mid-task
+success exceeds Reset for all three policies, showing that performance also
+depends on the trajectory from which the changed view is encountered.
+The cohort contains 700 Plus and 300 PRO cases; π0.5 uses H = 10 and Q = 5
+here, compared with H = 50 in the primary benchmark.
+
+![Paired camera-control contrasts across three policies on 1,000 cases each](assets/figures/camera_paired_contrasts.png?v=20260924)
+
+### Changing query cadence alone leaves a substantial gap
+
+On the same 800 matched pairs per policy, Dynamic success remains **11.1–23.0
+points below Base** across all 18 tested settings. The best serving cadence
+depends on the policy. For X-VLA and GR00T N1.7, the decoded action horizon
+changes with the query interval.
+
+![Base and Dynamic success across valid query cadences](assets/figures/action_cadence.png?v=20260924)
+
+### A targeted response partially recovers the sensor-noise loss
+
+On a separate fixed set of **300 sensor-noise cases**, image restoration
+improves X-VLA without retraining. Quality gating uses the current images,
+without an event flag or clean reference image.
+
+| Processing | Base SR (%) | Dynamic SR (%) | Dynamic gain (pp), paired 95% CI |
+|---|---:|---:|---:|
+| Native | 66.7 | 40.7 | — |
+| Always-on | 68.3 | 47.3 | +6.7 [2.3, 11.0] |
+| Quality-gated | 67.0 | 47.7 | +7.0 [3.0, 11.3] |
+
+<details>
+<summary><strong>Additional analyses: Lite validation, camera strength, coverage, and source breakdowns</strong></summary>
+
+#### Lite tracks the full benchmark
+
+Lite estimates the reported success rates and gaps within 2.4 points of Max
+and preserves 88 of 91 pairwise Dynamic orderings.
+
+![LIBERO-MAX and LIBERO-MAX Lite validation](assets/figures/max_lite_validation.png?v=20260924)
+
+#### Milder camera shifts
+
+X-VLA retains a positive Mid-task versus Reset difference at quarter, half,
+and full shift strength on the same 1,000 camera cases. Both changed-view
+conditions remain below Base even at quarter strength.
+
+![X-VLA success under quarter, half, and full camera-shift strength](assets/figures/camera_strength_success.png?v=20260924)
+
+#### Event exposure and response coverage
+
+Trigger and post-event query coverage distinguish reaching the event from
+receiving feedback after it. All assigned cases remain in the success-rate
+denominator.
+
+![Event-trigger and post-event response diagnostics](assets/figures/mechanism_diagnostics.png?v=20260924)
+
+#### Source-category breakdowns
+
+The source analyses show how paired losses vary across the Plus and PRO
+categories used to construct LIBERO-MAX.
+
+![Summary of paired losses across source categories](assets/figures/source_category_summary.png?v=20260924)
+
+![Paired success changes across LIBERO-Plus source categories](assets/figures/source_categories_plus.png?v=20260924)
+
+![Paired success changes across LIBERO-PRO source categories](assets/figures/source_categories_pro.png?v=20260924)
+
+</details>
 
 ## Quick start
 
@@ -114,6 +194,12 @@ LIBERO-MAX/
 ├── docs/                     # Benchmark specification and evaluation guide
 └── assets/figures/           # Figures rendered in this README
 ```
+
+## Authors
+
+Yunbei Zhang, Zijian Jin, Yuanzhe Liu, Janet Wang, Xilun Zhang, Yuyou Zhang,
+Zhenyu Zhang, Daoan Zhang, Shuaicheng Niu, Gen Li, Jianfei Yang, Jihun Hamm,
+Ismini Lourentzou, Weirui Ye, Bo Liu, Peter Stone, Marco Pavone.
 
 ## Citation
 
