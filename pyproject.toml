@@ -10,6 +10,11 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []
 
+[project.urls]
+Homepage = "https://liberomax.github.io/"
+Repository = "https://github.com/liberomax/LIBERO-MAX"
+Paper = "https://arxiv.org/abs/2609.36518"
+
 [project.scripts]
 libero-max = "libero_max.cli:main"
 

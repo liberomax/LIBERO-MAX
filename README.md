@@ -5,7 +5,7 @@
 ### Do Robot Policies Adapt When the World Changes?
 
 [![Project](https://img.shields.io/badge/Project-website-a7444e?style=flat-square)](https://liberomax.github.io/)
-[![Paper](https://img.shields.io/badge/Paper-coming%20soon-6b7280?style=flat-square)](#citation)
+[![Paper](https://img.shields.io/badge/Paper-arXiv%3A2609.36518-a7444e?style=flat-square)](https://arxiv.org/abs/2609.36518)
 [![LIBERO-MAX](https://img.shields.io/badge/LIBERO--MAX-8%2C000-a7444e?style=flat-square)](benchmark/max8000)
 [![Evaluated](https://img.shields.io/badge/Evaluated-14%20policies-62676e?style=flat-square)](#results)
 
@@ -202,8 +202,36 @@ Ismini Lourentzou, Weirui Ye, Bo Liu, Peter Stone, Marco Pavone.
 
 ## Citation
 
-The paper PDF and BibTeX will be added after release. For now, please cite the repository URL:
+If you use LIBERO-MAX, please cite our paper:
 
-```text
-https://github.com/liberomax/LIBERO-MAX
+[arXiv](https://arxiv.org/abs/2609.36518) · [PDF](https://arxiv.org/pdf/2609.36518) · [BibTeX](CITATION.bib)
+
+```bibtex
+@misc{zhang2026liberomaxrobotpoliciesadapt,
+  title = {LIBERO-MAX: Do Robot Policies Adapt When the World Changes?},
+  author = {
+    Yunbei Zhang and
+    Zijian Jin and
+    Yuanzhe Liu and
+    Janet Wang and
+    Xilun Zhang and
+    Yuyou Zhang and
+    Zhenyu Zhang and
+    Daoan Zhang and
+    Shuaicheng Niu and
+    Gen Li and
+    Jianfei Yang and
+    Jihun Hamm and
+    Ismini Lourentzou and
+    Weirui Ye and
+    Bo Liu and
+    Peter Stone and
+    Marco Pavone
+  },
+  year = {2026},
+  eprint = {2609.36518},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url = {https://arxiv.org/abs/2609.36518}
+}
 ```
