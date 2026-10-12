@@ -11,7 +11,7 @@
 
 ## Authors
 
-[Yunbei Zhang](https://yunbeizhang.github.io/), Zijian Jin, Yuanzhe Liu, Janet Wang, Xilun Zhang, Yuyou Zhang,<br>
+[Yunbei Zhang](https://yunbeizhang.github.io/)<sup>*</sup>, Zijian Jin<sup>*</sup>, Yuanzhe Liu, Janet Wang, Xilun Zhang, Yuyou Zhang,<br>
 Zhenyu Zhang, Daoan Zhang, Shuaicheng Niu, Gen Li, Jianfei Yang, Jihun Hamm,<br>
 Ismini Lourentzou, Weirui Ye, Bo Liu, Peter Stone, Marco Pavone.
 
