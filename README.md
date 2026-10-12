@@ -9,7 +9,11 @@
 [![LIBERO-MAX](https://img.shields.io/badge/LIBERO--MAX-8%2C000-a7444e?style=flat-square)](benchmark/max8000)
 [![Evaluated](https://img.shields.io/badge/Evaluated-14%20policies-62676e?style=flat-square)](#results)
 
-[Dataset](benchmark/max8000) · [LIBERO-MAX Lite](benchmark/lite) · [Benchmark specification](docs/BENCHMARK_SPEC.md) · [Evaluation guide](docs/RUNTIME_INTEGRATION.md)
+## Authors
+
+[Yunbei Zhang](https://yunbeizhang.github.io/), Zijian Jin, Yuanzhe Liu, Janet Wang, Xilun Zhang, Yuyou Zhang,<br>
+Zhenyu Zhang, Daoan Zhang, Shuaicheng Niu, Gen Li, Jianfei Yang, Jihun Hamm,<br>
+Ismini Lourentzou, Weirui Ye, Bo Liu, Peter Stone, Marco Pavone.
 
 </div>
 
@@ -193,12 +197,6 @@ LIBERO-MAX/
 ├── docs/                     # Benchmark specification and evaluation guide
 └── assets/figures/           # Figures rendered in this README
 ```
-
-## Authors
-
-Yunbei Zhang, Zijian Jin, Yuanzhe Liu, Janet Wang, Xilun Zhang, Yuyou Zhang,<br>
-Zhenyu Zhang, Daoan Zhang, Shuaicheng Niu, Gen Li, Jianfei Yang, Jihun Hamm,<br>
-Ismini Lourentzou, Weirui Ye, Bo Liu, Peter Stone, Marco Pavone.
 
 ## Citation
 
